@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppointmentsDayView } from './Appointment';
+import { AppointmentsDayView } from './AppointmentsDayView';
 import { CustomerForm } from './CustomerForm';
 import { sampleAppointments } from './sampleData';
+import { AppointmentForm } from './AppointmentForm';
 
 ReactDOM.render(
-  <CustomerForm />,
+  <AppointmentForm />,
   document.getElementById('root')
 );
