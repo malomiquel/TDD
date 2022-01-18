@@ -59,4 +59,13 @@ describe('AppointmentFormLoader', () => {
     );
   });
 
+  it('passes props through to children', async () => {
+    await renderAndWait(<AppointmentFormLoader testProps={123} />);
+
+    expect(AppointmentFormExports.AppointmentForm).toHaveBeenCalledWith(
+      expect.objectContaining({ testProps: 123 }),
+      expect.anything()
+    );
+  });
+
 });
