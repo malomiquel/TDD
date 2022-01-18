@@ -1,13 +1,22 @@
 import React, { useState } from 'react';
-import 'whatwg-fetch';
 
 const Error = () => (
   <div className="error">An error occurred during save.</div>
 );
 
-export const CustomerForm = ({ firstName, lastName, phoneNumber, onSave }) => {
+export const CustomerForm = ({
+  firstName,
+  lastName,
+  phoneNumber,
+  onSave
+}) => {
   const [error, setError] = useState(false);
-  const [customer, setCustomer] = useState({ firstName, lastName, phoneNumber });
+
+  const [customer, setCustomer] = useState({
+    firstName,
+    lastName,
+    phoneNumber
+  });
 
   const handleChange = ({ target }) =>
     setCustomer(customer => ({
@@ -22,8 +31,9 @@ export const CustomerForm = ({ firstName, lastName, phoneNumber, onSave }) => {
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(customer)
-    })
+    });
     if (result.ok) {
+      setError(false);
       const customerWithId = await result.json();
       onSave(customerWithId);
     } else {
@@ -67,5 +77,5 @@ export const CustomerForm = ({ firstName, lastName, phoneNumber, onSave }) => {
 };
 
 CustomerForm.defaultProps = {
-  onSave: () => { }
+  onSave: () => {}
 };
