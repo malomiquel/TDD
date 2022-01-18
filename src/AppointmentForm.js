@@ -108,6 +108,9 @@ const TimeSlotTable = ({
 export const AppointmentForm = ({
   selectableServices,
   service,
+  selectableStylists,
+  stylist,
+  serviceStylists,
   onSubmit,
   salonOpensAt,
   salonClosesAt,
@@ -117,13 +120,14 @@ export const AppointmentForm = ({
 }) => {
   const [appointment, setAppointment] = useState({
     service,
-    startsAt
+    startsAt,
+    stylist
   });
 
-  const handleServiceChange = ({ target: { value } }) =>
+  const handleSelectBoxChange = ({ target: { value, name } }) =>
     setAppointment(appointment => ({
       ...appointment,
-      service: value
+      [name]: value
     }));
 
   const handleStartsAtChange = useCallback(
@@ -135,6 +139,16 @@ export const AppointmentForm = ({
     []
   );
 
+  const stylistsForService = appointment.service
+    ? serviceStylists[appointment.service]
+    : selectableStylists;
+
+  const timeSlotsForStylist = appointment.stylist
+    ? availableTimeSlots.filter(slot =>
+        slot.stylists.includes(appointment.stylist)
+      )
+    : availableTimeSlots;
+
   return (
     <form id="appointment" onSubmit={() => onSubmit(appointment)}>
       <label htmlFor="service">Salon service</label>
@@ -142,9 +156,21 @@ export const AppointmentForm = ({
         name="service"
         id="service"
         value={service}
-        onChange={handleServiceChange}>
+        onChange={handleSelectBoxChange}>
         <option />
         {selectableServices.map(s => (
+          <option key={s}>{s}</option>
+        ))}
+      </select>
+
+      <label htmlFor="stylist">Stylist</label>
+      <select
+        name="stylist"
+        id="stylist"
+        value={stylist}
+        onChange={handleSelectBoxChange}>
+        <option />
+        {stylistsForService.map(s => (
           <option key={s}>{s}</option>
         ))}
       </select>
@@ -153,10 +179,12 @@ export const AppointmentForm = ({
         salonOpensAt={salonOpensAt}
         salonClosesAt={salonClosesAt}
         today={today}
-        availableTimeSlots={availableTimeSlots}
+        availableTimeSlots={timeSlotsForStylist}
         checkedTimeSlot={appointment.startsAt}
         handleChange={handleStartsAtChange}
       />
+
+      <input type="submit" value="Add" />
     </form>
   );
 };
@@ -173,5 +201,14 @@ AppointmentForm.defaultProps = {
     'Beard trim',
     'Cut & beard trim',
     'Extensions'
-  ]
+  ],
+  selectableStylists: ['Ashley', 'Jo', 'Pat', 'Sam'],
+  serviceStylists: {
+    Cut: ['Ashley', 'Jo', 'Pat', 'Sam'],
+    'Blow-dry': ['Ashley', 'Jo', 'Pat', 'Sam'],
+    'Cut & color': ['Ashley', 'Jo'],
+    'Beard trim': ['Pat', 'Sam'],
+    'Cut & beard trim': ['Pat', 'Sam'],
+    Extensions: ['Ashley', 'Pat']
+  }
 };
