@@ -110,7 +110,6 @@ const TimeSlotTable = ({
 };
 
 export const AppointmentForm = ({
-  customer,
   selectableServices,
   service,
   selectableStylists,
@@ -121,7 +120,8 @@ export const AppointmentForm = ({
   salonClosesAt,
   today,
   availableTimeSlots,
-  startsAt
+  startsAt,
+  customer
 }) => {
   const [error, setError] = useState(false);
 

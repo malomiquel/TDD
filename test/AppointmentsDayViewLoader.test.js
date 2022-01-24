@@ -7,11 +7,13 @@ import * as AppointmentsDayViewExports from '../src/AppointmentsDayView';
 
 describe('AppointmentsDayViewLoader', () => {
   let renderAndWait, container;
+
   const today = new Date();
   const appointments = [
     { startsAt: today.setHours(9, 0, 0, 0) },
     { startsAt: today.setHours(10, 0, 0, 0) }
   ];
+
   beforeEach(() => {
     ({ renderAndWait, container } = createContainer());
     jest
@@ -21,17 +23,20 @@ describe('AppointmentsDayViewLoader', () => {
       .spyOn(AppointmentsDayViewExports, 'AppointmentsDayView')
       .mockReturnValue(null);
   });
+
   afterEach(() => {
     window.fetch.mockRestore();
     AppointmentsDayViewExports.AppointmentsDayView.mockRestore();
   });
 
-  it('fetches appointments happening today when component is mounted', async () => {
+  it('fetches data when component is mounted', async () => {
     const from = today.setHours(0, 0, 0, 0);
     const to = today.setHours(23, 59, 59, 999);
+
     await renderAndWait(
       <AppointmentsDayViewLoader today={today} />
     );
+
     expect(window.fetch).toHaveBeenCalledWith(
       `/appointments/${from}-${to}`,
       expect.objectContaining({
@@ -44,6 +49,7 @@ describe('AppointmentsDayViewLoader', () => {
 
   it('initially passes no data to AppointmentsDayView', async () => {
     await renderAndWait(<AppointmentsDayViewLoader />);
+
     expect(
       AppointmentsDayViewExports.AppointmentsDayView
     ).toHaveBeenCalledWith(
@@ -57,7 +63,7 @@ describe('AppointmentsDayViewLoader', () => {
 
     expect(
       AppointmentsDayViewExports.AppointmentsDayView
-    ).toHaveBeenCalledWith(
+    ).toHaveBeenLastCalledWith(
       {
         appointments
       },
@@ -71,17 +77,22 @@ describe('AppointmentsDayViewLoader', () => {
     const from = tomorrow.setHours(0, 0, 0, 0);
     const to = tomorrow.setHours(23, 59, 59, 999);
 
-    await renderAndWait(<AppointmentsDayViewLoader today={today} />);
-    await renderAndWait(<AppointmentsDayViewLoader today={tomorrow} />);
+    await renderAndWait(
+      <AppointmentsDayViewLoader today={today} />
+    );
+    await renderAndWait(
+      <AppointmentsDayViewLoader today={tomorrow} />
+    );
 
     expect(window.fetch).toHaveBeenLastCalledWith(
       `/appointments/${from}-${to}`,
-      expect.anything());
+      expect.anything()
+    );
   });
 
   it('calls window.fetch just once', async () => {
     await renderAndWait(<AppointmentsDayViewLoader />);
     await renderAndWait(<AppointmentsDayViewLoader />);
     expect(window.fetch.mock.calls.length).toBe(1);
-  })
+  });
 });

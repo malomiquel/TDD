@@ -2,13 +2,13 @@ import { name, phone, lorem } from 'faker';
 
 const randomInt = range => Math.floor(Math.random() * range);
 
-Array.prototype.unique = function () {
-  return this.filter(function (value, index, self) {
+Array.prototype.unique = function() {
+  return this.filter(function(value, index, self) {
     return self.indexOf(value) === index;
   });
 };
 
-Array.prototype.pickRandom = function () {
+Array.prototype.pickRandom = function() {
   return this[randomInt(this.length)];
 };
 

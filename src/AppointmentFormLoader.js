@@ -18,6 +18,9 @@ export const AppointmentFormLoader = props => {
   }, []);
 
   return (
-    <AppointmentForm {...props} availableTimeSlots={availableTimeSlots} />
+    <AppointmentForm
+      {...props}
+      availableTimeSlots={availableTimeSlots}
+    />
   );
 };
