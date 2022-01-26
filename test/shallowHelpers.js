@@ -1,10 +1,13 @@
-import ShallowRenderer from 'react-shallow-renderer';
+import ShallowRenderer from 'react-test-renderer/shallow';
 
 export const id = id => element =>
   element.props && element.props.id === id;
 export const type = type => element => element.type === type;
 export const className = className => element =>
   element.props.className === className;
+
+export const prop = (pathName, value) => element =>
+  element.props[pathName] === value;
 
 export const click = element => element.props.onClick();
 
@@ -45,6 +48,7 @@ export const createShallowRenderer = () => {
 
   return {
     render: component => renderer.render(component),
+    root: () => renderer.getRenderOutput(),
     elementMatching: matcherFn =>
       elementsMatching(renderer.getRenderOutput(), matcherFn)[0],
     elementsMatching: matcherFn =>
