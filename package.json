@@ -5,10 +5,11 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack",
-    "test": "jest --env=jsdom --watchAll",
+    "test": "jest",
     "build-server": "webpack --config webpack-server.config.js",
     "test-server": "jest --config server/jest.json",
-    "serve": "node dist/server/server.js"
+    "serve": "node dist/server/server.js",
+    "relay": "relay-compiler --src ./src --schema ./src/schema.graphql --watchman false"
   },
   "repository": {
     "type": "git",
@@ -20,12 +21,15 @@
     "@babel/plugin-transform-runtime": "^7.3.4",
     "@babel/preset-env": "^7.3.4",
     "@babel/preset-react": "^7.0.0",
-    "@types/whatwg-fetch": "^0.0.33",
     "babel-loader": "^8.0.5",
+    "babel-plugin-relay": "^3.0.0",
+    "expect-redux": "^4.0.3",
     "express-graphql": "^0.7.1",
     "faker": "^4.1.0",
     "jest": "^24.1.0",
     "jest-raw-loader": "^1.0.1",
+    "react-test-renderer": "^16.9.0-alpha.0",
+    "relay-compiler": "^3.0.0",
     "supertest": "^3.4.2",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",
@@ -45,7 +49,11 @@
     "raw-loader": "^1.0.0",
     "react": "^16.9.0-alpha.0",
     "react-dom": "^16.9.0-alpha.0",
-    "react-shallow-renderer": "^16.14.1",
+    "react-redux": "^7.0.2",
+    "react-relay": "^3.0.0",
+    "react-router-dom": "^5.0.0",
+    "redux": "^4.0.1",
+    "redux-saga": "^1.0.2",
     "whatwg-fetch": "^3.0.0"
   },
   "prettier": {

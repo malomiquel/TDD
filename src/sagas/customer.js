@@ -1,9 +1,10 @@
 import { put, call } from 'redux-saga/effects';
+import { objectToQueryString } from '../objectToQueryString';
 
 const fetch = (url, data) =>
   window.fetch(url, {
     body: JSON.stringify(data),
-    method: 'POST',
+    method: data ? 'POST' : 'GET',
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' }
   });
@@ -28,32 +29,25 @@ export function* addCustomer({ customer }) {
   }
 }
 
-const defaultState = {
-  customer: {},
-  status: undefined,
-  validationErrors: {},
-  error: false
-};
+export function* searchCustomers({
+  lastRowIds,
+  searchTerm,
+  limit
+}) {
+  let after;
+  if (lastRowIds.length > 0)
+    after = lastRowIds[lastRowIds.length - 1];
 
-export const reducer = (state = defaultState, action) => {
-  switch (action.type) {
-    case 'ADD_CUSTOMER_SUBMITTING':
-      return { ...state, status: 'SUBMITTING' };
-    case 'ADD_CUSTOMER_FAILED':
-      return { ...state, status: 'FAILED', error: true };
-    case 'ADD_CUSTOMER_VALIDATION_FAILED':
-      return {
-        ...state,
-        status: 'VALIDATION_FAILED',
-        validationErrors: action.validationErrors
-      };
-    case 'ADD_CUSTOMER_SUCCESSFUL':
-      return {
-        ...state,
-        status: 'SUCCESSFUL',
-        customer: action.customer
-      };
-    default:
-      return state;
-  }
-};
+  const queryString = objectToQueryString({
+    after,
+    searchTerm,
+    limit: limit === 10 ? '' : limit
+  });
+
+  const result = yield call(fetch, `/customers${queryString}`);
+  const customers = yield call([result, 'json']);
+  yield put({
+    type: 'SEARCH_CUSTOMERS_SUCCESSFUL',
+    customers
+  });
+}

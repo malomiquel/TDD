@@ -14,6 +14,7 @@ import { AppointmentFormLoader } from '../src/AppointmentFormLoader';
 import { AppointmentsDayViewLoader } from '../src/AppointmentsDayViewLoader';
 import { CustomerForm } from '../src/CustomerForm';
 import { CustomerSearchRoute } from '../src/CustomerSearchRoute';
+import { CustomerHistory } from '../src/CustomerHistory';
 
 describe('MainScreen', () => {
   let render, child, elementMatching;
@@ -110,14 +111,6 @@ describe('App', () => {
 
   const customer = { id: 123 };
 
-  it('navigates to / when AppointmentFormLoader is saved', () => {
-    render(<App history={{ push: historySpy }} />);
-    const onSave = routeFor('/addAppointment').props.render().props
-      .onSave;
-    onSave();
-    expect(historySpy).toHaveBeenCalledWith('/');
-  });
-
   describe('search customers', () => {
     let dispatchSpy;
 
@@ -150,14 +143,6 @@ describe('App', () => {
       expect(button.props.children).toEqual('Create appointment');
     });
 
-    it('navigates to /addAppointment when clicking the Create appointment button', () => {
-      const button = childrenOf(
-        renderSearchActionsForCustomer(customer)
-      )[0];
-      click(button);
-      expect(historySpy).toHaveBeenCalledWith('/addAppointment');
-    });
-
     it('passes saved customer to AppointmentFormLoader when clicking the Create appointment button', () => {
       const button = childrenOf(
         renderSearchActionsForCustomer(customer)
@@ -165,5 +150,32 @@ describe('App', () => {
       click(button);
       expect(dispatchSpy).toHaveBeenCalledWith(customer);
     });
+
+    it('passes a button to the CustomerSearch named View history', () => {
+      const button = childrenOf(
+        renderSearchActionsForCustomer(customer)
+      )[1];
+      expect(button.type).toEqual('button');
+      expect(button.props.role).toEqual('button');
+      expect(button.props.children).toEqual('View history');
+    });
+
+    it('navigates to /customer/:id when clicking the View history button', () => {
+      const button = childrenOf(
+        renderSearchActionsForCustomer(customer)
+      )[1];
+      click(button);
+      expect(historySpy).toHaveBeenCalledWith('/customer/123');
+    });
+  });
+
+  it('renders CustomerHistory at /customer', () => {
+    render(<App />);
+    const match = { params: { id: '123' } };
+    const element = routeFor('/customer/:id').props.render({
+      match
+    });
+    expect(element.type).toEqual(CustomerHistory);
+    expect(element.props.id).toEqual('123');
   });
 });

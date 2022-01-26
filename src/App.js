@@ -4,6 +4,7 @@ import { AppointmentFormLoader } from './AppointmentFormLoader';
 import { AppointmentsDayViewLoader } from './AppointmentsDayViewLoader';
 import { CustomerForm } from './CustomerForm';
 import { CustomerSearchRoute } from './CustomerSearchRoute';
+import { CustomerHistory } from './CustomerHistory';
 import { connect } from 'react-redux';
 
 export const MainScreen = () => (
@@ -21,22 +22,20 @@ export const MainScreen = () => (
 );
 
 export const App = ({ history, setCustomerForAppointment }) => {
-  const transitionToAddAppointment = customer => {
-    setCustomerForAppointment(customer);
-    history.push('/addAppointment');
-  };
-
-  const transitionToDayView = useCallback(
-    () => history.push('/'),
-    [history]
-  );
+  const transitionToCustomerHistory = customer =>
+    history.push(`/customer/${customer.id}`);
 
   const searchActions = customer => (
     <React.Fragment>
       <button
         role="button"
-        onClick={() => transitionToAddAppointment(customer)}>
+        onClick={() => setCustomerForAppointment(customer)}>
         Create appointment
+      </button>
+      <button
+        role="button"
+        onClick={() => transitionToCustomerHistory(customer)}>
+        View history
       </button>
     </React.Fragment>
   );
@@ -46,9 +45,7 @@ export const App = ({ history, setCustomerForAppointment }) => {
       <Route path="/addCustomer" component={CustomerForm} />
       <Route
         path="/addAppointment"
-        render={() => (
-          <AppointmentFormLoader onSave={transitionToDayView} />
-        )}
+        render={() => <AppointmentFormLoader />}
       />
       <Route
         path="/searchCustomers"
@@ -59,6 +56,10 @@ export const App = ({ history, setCustomerForAppointment }) => {
           />
         )}
       />
+      <Route
+        path="/customer/:id"
+        render={({ match }) => <CustomerHistory id={match.params.id} />}
+      />
       <Route component={MainScreen} />
     </Switch>
   );
@@ -66,7 +67,7 @@ export const App = ({ history, setCustomerForAppointment }) => {
 
 const mapDispatchToProps = {
   setCustomerForAppointment: customer => ({
-    type: 'SET_CUSTOMER_FOR_APPOINTMENT',
+    type: 'CUSTOMER_SELECTED',
     customer
   })
 };

@@ -24,10 +24,7 @@ input[type="submit"] {
   grid-column-end: 4;
 }
 
-input[type="submit"],
-button,
-.button,
-.toggle-button {
+input[type="submit"], button, .button, .toggle-button {
   background: #579;
   text-decoration: none;
   font-weight: bold;
@@ -129,8 +126,7 @@ thead {
   background-color: #acd;
 }
 
-td,
-th {
+td, th {
   padding: 5px;
   text-align: left;
   height: 30px;
@@ -143,9 +139,11 @@ th {
   text-decoration: underline;
 }
 
+
 h3 {
   margin-left: 10px;
 }
+
 
 .error {
   color: red;

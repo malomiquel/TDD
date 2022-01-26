@@ -4,12 +4,7 @@ import {
   fetchResponseOk,
   fetchResponseError
 } from '../spyHelpers';
-import {
-  itMaintainsExistingState,
-  itSetsStatus
-} from '../reducerGenerators';
 import { configureStore } from '../../src/store';
-import { reducer } from '../../src/sagas/customer';
 
 describe('addCustomer', () => {
   const customer = { id: 123 };
@@ -82,64 +77,90 @@ describe('addCustomer', () => {
   });
 });
 
-describe('reducer', () => {
-  it('returns a default state for an undefined existing state', () => {
-    expect(reducer(undefined, {})).toEqual({
-      customer: {},
-      status: undefined,
-      validationErrors: {},
-      error: false
+describe('searchCustomers', () => {
+  let store;
+
+  const customers = [{ id: '123' }, { id: '234' }];
+
+  beforeEach(() => {
+    jest
+      .spyOn(window, 'fetch')
+      .mockReturnValue(fetchResponseOk(customers));
+    store = configureStore([storeSpy]);
+  });
+
+  const defaultParams = {
+    lastRowIds: [],
+    searchTerm: '',
+    limit: 10
+  };
+
+  const dispatchRequest = ({ lastRowIds, searchTerm, limit }) =>
+    store.dispatch({
+      type: 'SEARCH_CUSTOMERS_REQUEST',
+      lastRowIds,
+      searchTerm,
+      limit
     });
-  });
 
-  describe('ADD_CUSTOMER_SUBMITTING action', () => {
-    const action = { type: 'ADD_CUSTOMER_SUBMITTING' };
+  describe('calling GET /customers', () => {
+    it('customers with the default search items', () => {
+      dispatchRequest(defaultParams);
 
-    itMaintainsExistingState(reducer, action);
-    itSetsStatus(reducer, action, 'SUBMITTING');
-  });
-
-  describe('ADD_CUSTOMER_FAILED action', () => {
-    const action = { type: 'ADD_CUSTOMER_FAILED' };
-
-    itMaintainsExistingState(reducer, action);
-    itSetsStatus(reducer, action, 'FAILED');
-
-    it('sets error to true', () => {
-      expect(reducer(undefined, action)).toMatchObject({
-        error: true
+      expect(window.fetch).toHaveBeenCalledWith('/customers', {
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        method: 'GET'
       });
     });
-  });
 
-  describe('ADD_CUSTOMER_VALIDATION_FAILED action', () => {
-    const validationErrors = { field: 'error text' };
-    const action = {
-      type: 'ADD_CUSTOMER_VALIDATION_FAILED',
-      validationErrors
-    };
-
-    itMaintainsExistingState(reducer, action);
-    itSetsStatus(reducer, action, 'VALIDATION_FAILED');
-
-    it('sets validation errors to provided errors', () => {
-      expect(reducer(undefined, action)).toMatchObject({
-        validationErrors
+    it('sends the after query param as the last item in lastRowIds', () => {
+      dispatchRequest({
+        ...defaultParams,
+        lastRowIds: [123, 234, 345]
       });
+
+      expect(window.fetch).toHaveBeenCalledWith(
+        '/customers?after=345',
+        expect.anything()
+      );
+    });
+
+    it('sends the search term query param', () => {
+      dispatchRequest({
+        ...defaultParams,
+        searchTerm: 'name'
+      });
+
+      expect(window.fetch).toHaveBeenCalledWith(
+        '/customers?searchTerm=name',
+        expect.anything()
+      );
+    });
+
+    it('sends the limit query param', () => {
+      dispatchRequest({
+        ...defaultParams,
+        limit: 40
+      });
+
+      expect(window.fetch).toHaveBeenCalledWith(
+        '/customers?limit=40',
+        expect.anything()
+      );
     });
   });
 
-  describe('ADD_CUSTOMER_SUCCESSFUL action', () => {
-    const customer = { id: 123 };
-    const action = { type: 'ADD_CUSTOMER_SUCCESSFUL', customer };
+  it('dispatches SEARCH_CUSTOMERS_SUCCESSFUL', () => {
+    dispatchRequest(defaultParams);
 
-    itMaintainsExistingState(reducer, action);
-    itSetsStatus(reducer, action, 'SUCCESSFUL');
-
-    it('sets customer to provided customer', () => {
-      expect(reducer(undefined, action)).toMatchObject({
-        customer
+    return expectRedux(store)
+      .toDispatchAnAction()
+      .matching({
+        type: 'SEARCH_CUSTOMERS_SUCCESSFUL',
+        customers
       });
-    });
   });
 });
